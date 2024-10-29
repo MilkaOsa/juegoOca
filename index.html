@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rimworld Mini Game</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/styles/styles.css"> <!-- Enlace al CSS del juego -->
+  <link rel="icon" href="assets/favicon_io/favicon.ico" type="image/x-icon">
+  <style>
+    body, html, #startButton, #controls, #gameCanvas, #timeCounter, #livesCounter, #itemsCounter, #levelCounter {
+      font-family: 'Press Start 2P', cursive;
+    }
+  </style>
+</head>
+<body>
+  <!-- Pantalla de inicio -->
+  <div id="startScreen" class="fullscreen">
+    <button id="startButton" class="btn">Iniciar Juego</button>
+  </div>
+
+  <!-- Canvas principal para el juego -->
+  <canvas id="gameCanvas"></canvas>
+
+  <!-- Controles del juego -->
+  <div id="controls">
+    <button id="pauseButton" class="playing">
+      <i class="fas fa-pause"></i>
+    </button>
+    <span id="levelCounter">
+      <img src="assets/images/trophy.png" alt="Trophy" class="counter-icon">
+    </span> 
+    <span id="livesCounter">
+      <img src="assets/images/heart.png" alt="Heart" width="20" height="20">
+    </span>
+    <span id="itemsCounter">
+      <img src="assets/images/star.png" alt="Items" width="20" height="20">
+    </span>
+    <span id="timeCounter">
+      <img src="assets/images/clock.png" alt="Time" width="20" height="20">
+    </span>
+  </div>
+
+  <!-- Carga los archivos JavaScript en el orden adecuado -->
+  <script src="assets/js/GameManager.js" defer></script>
+  <script src="assets/js/ObjectManager.js" defer></script>
+  <script src="assets/js/Player.js" defer></script>
+  <script src="assets/js/EnemyManager.js" defer></script>
+  <script src="assets/js/LevelManager.js" defer></script>
+  <script src="assets/js/UIManager.js" defer></script>
+ 
+  <!-- Inicialización del GameManager -->
+  <script defer>
+    document.addEventListener("DOMContentLoaded", () => {
+        const canvas = document.getElementById("gameCanvas");
+        const gameManager = new GameManager(canvas);
+
+        // Inicia el juego cuando se hace clic en el botón "Iniciar Juego"
+        document.getElementById("startButton").addEventListener("click", () => gameManager.startGame());
+    });
+  </script>  
+</body>
+</html>
+
+
+
+

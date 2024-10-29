@@ -1,0 +1,174 @@
+/* --- Estilos Globales --- */
+body, html {
+  margin: 0;
+  padding: 0;
+  width: 100%; /* Ocupa todo el ancho de la ventana */
+  height: 100%; /* Ocupa todo el alto de la ventana */
+  overflow: hidden; /* Elimina el scroll */
+  font-family: 'Poppins', sans-serif; /* Tipografía principal */
+}
+
+/* --- Pantalla de Inicio --- */
+#startScreen {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column; /* Alinea elementos verticalmente */
+  justify-content: flex-end; /* Alinea el contenido hacia abajo */
+  align-items: center;
+  background: url('/assets/images/start-screen.png') no-repeat center center;
+  background-size: cover;
+  background-attachment: fixed; /* Fija la imagen de fondo */
+  z-index: 10; /* Coloca la pantalla de inicio en frente */
+}
+
+/* --- Botón de Inicio --- */
+#startButton {
+  padding: 15px 30px;
+  font-size: 24px;
+  color: white;
+  background-color: #297562;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: bold;
+  transition: background-color 0.3s;
+  margin-bottom: 30px; /* Espacio inferior */
+}
+
+#startButton:hover {
+  background-color: #1f5d4a; /* Color al pasar el ratón */
+}
+
+/* --- Canvas y Controles Inicialmente Ocultos --- */
+#gameCanvas, #controls {
+  display: none;
+  width: 100%;
+  height: 100%;
+  z-index: 1; /* Envía el canvas al fondo */
+}
+
+#gameCanvas.active, #controls.active {
+  display: block;
+}
+
+/* --- Controles del Juego --- */
+#controls {
+  position: absolute;
+  top: 20px;
+  left: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px; /* Espacio entre los contadores */
+}
+
+/* --- Contadores de Tiempo, Vidas, Objetos y Nivel --- */
+#timeCounter, #livesCounter, #itemsCounter {
+  font-size: 0px;
+  font-weight: bold;
+  color: #ffffff;
+  padding: 5px 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  margin-bottom: 10px;
+  height: 40px; /* Ajusta la altura */
+}
+
+/* Estilo de las imágenes de los contadores */
+#timeCounter img, #livesCounter img, #itemsCounter img, #levelCounter img {
+  margin-right: 5px;
+  width: 20px;
+  height: 20px;
+}
+
+/* Altura consistente para los contadores y el botón de pausa */
+#pauseButton, #timeCounter, #livesCounter, #itemsCounter, #levelCounter {
+  height: 40px;
+  display: flex;
+  align-items: center;
+}
+
+/* --- Botón de Pausa --- */
+#pauseButton {
+  padding: 5px 15px;
+  font-size: 14px;
+  color: #ffffff;
+  background-color: rgba(255, 0, 0, 0.5);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  width: auto;
+  margin-bottom: 10px;
+}
+
+#pauseButton:hover {
+  background-color: #ff4500; /* Color al pasar el ratón */
+}
+
+#pauseButton.paused {
+  background-color: rgba(0, 204, 0, 0.5); /* Color verde cuando está en pausa */
+}
+
+#pauseButton i {
+  font-size: 20px;
+}
+
+/* --- Colores Condicionales e Iconos de Contadores --- */
+#timeCounter::before, #livesCounter::before, #itemsCounter::before, #levelCounter::before {
+  font-family: "Font Awesome 5 Free";
+  font-weight: 900;
+  color: #ffffff;
+  font-size: 20px;
+  margin-right: 5px;
+}
+
+#livesCounter.critical {
+  color: #ff4c4c; /* Rojo cuando las vidas son bajas */
+}
+
+#itemsCounter.bonus {
+  color: #4cff4c; /* Verde brillante para bonificación */
+}
+
+/* --- Contador de Nivel --- */
+#levelCounter {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  color: #ffffff;
+  padding: 5px 10px;
+  background-color: rgba(0, 0, 0, 0.5);
+  border-radius: 5px;
+  margin-bottom: 10px;
+}
+
+#levelCounter img {
+  width: 20px;
+  height: 20px;
+}
+
+.notification {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 10px 20px;
+  background-color: rgba(0, 0, 0, 0.8);
+  color: white;
+  border-radius: 5px;
+  font-size: 14px;
+  z-index: 100;
+  opacity: 0.9;
+}
+
+
