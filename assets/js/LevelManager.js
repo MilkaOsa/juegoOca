@@ -12,13 +12,16 @@ class LevelManager {
       3: "assets/images/Level3.png"
     };
 
-    // Lista de imágenes de obstáculos disponibles
-    this.obstacleImages = [
-      "assets/images/obstacle1.png",
-      //"assets/images/obstacle2.png"
-    ];
-
-    this.setRandomObstacleImage(); // Configura una imagen de obstáculo aleatoria
+    // Configura la imagen de obstáculo directamente
+    this.obstacleImage = new Image();
+    this.obstacleImage.src = "assets/images/obstacle1.png"; // Usa la única imagen disponible
+    this.obstacleImage.onload = () => {
+      console.log("Imagen del obstáculo cargada correctamente:", this.obstacleImage.src);
+    };
+    this.obstacleImage.onerror = () => {
+      console.error("Error al cargar la imagen del obstáculo:", this.obstacleImage.src);
+      this.obstacleImage.src = "assets/images/defaultObstacle.png"; // Imagen alternativa en caso de error
+    };
 
     // Inicialización del canvas y del gestor principal del juego
     this.canvas = canvas;
@@ -52,22 +55,6 @@ class LevelManager {
       console.warn(`El nivel ${level} no tiene una imagen de fondo definida.`);
       this.obstacleMatrix = []; // Si no hay fondo, limpia la matriz de obstáculos
     }
-  }
-
-  // Establece aleatoriamente una imagen de obstáculo
-  setRandomObstacleImage() {
-    const randomIndex = Math.floor(Math.random() * this.obstacleImages.length);
-    this.obstacleImage = new Image();
-    this.obstacleImage.src = this.obstacleImages[randomIndex];
-
-    // Carga la imagen y maneja posibles errores
-    this.obstacleImage.onload = () => {
-      console.log("Imagen del obstáculo cargada correctamente:", this.obstacleImage.src);
-    };
-    this.obstacleImage.onerror = () => {
-      console.error("Error al cargar la imagen del obstáculo:", this.obstacleImage.src);
-      this.obstacleImage.src = "assets/images/defaultObstacle.png"; // Imagen alternativa en caso de error
-    };
   }
 
   // Actualiza el contador de nivel en la interfaz
@@ -154,9 +141,10 @@ class LevelManager {
 
   // Renderiza los obstáculos en el nivel actual usando la matriz
   renderLevel(ctx) {
+    if (!this.obstacleImage.complete) return; // Asegura que la imagen esté lista
     for (let row = 0; row < this.obstacleMatrix.length; row++) {
       for (let col = 0; col < this.obstacleMatrix[row].length; col++) {
-        if (this.obstacleMatrix[row][col] === 1 && this.obstacleImage.complete) {
+        if (this.obstacleMatrix[row][col] === 1) {
           ctx.drawImage(
             this.obstacleImage,
             col * this.tileSize,
@@ -168,6 +156,7 @@ class LevelManager {
       }
     }
   }
+  
 
   // Carga la imagen de fondo para el nivel actual
   loadBackgroundImage() {
@@ -186,7 +175,6 @@ class LevelManager {
         this.backgroundImage.src = "assets/images/defaultBackground.png"; // Imagen alternativa
     };
   }
-
 
   // Renderiza objetos en el nivel actual
   renderObjects(ctx) {

@@ -4,7 +4,7 @@ class GameManager {
   constructor(canvas) {
     // Configuración de música de fondo
     this.music = new Audio('assets/mp3/gameplay-music.mp3'); 
-    this.music.volume = 0.3; // Volumen de la música al 30%
+    this.music.volume = 0.02; // Volumen de la música al 10%
 
     // Configuración del canvas y su contexto para dibujar
     this.canvas = canvas; 
