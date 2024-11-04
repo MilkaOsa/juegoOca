@@ -1,111 +1,113 @@
 // --- UIManager.js ---
-// Clase UIManager que gestiona y actualiza la interfaz de usuario del juego
+
+// Clase UIManager que gestiona la interfaz de usuario
 class UIManager {
   constructor(gameManager) {
-    // Referencia a GameManager para obtener estado y puntaje
     this.gameManager = gameManager;
 
-    // Configuración del botón de pausa/reanudación
+    // Referencia y configuración del botón de pausa/reanudación
     this.playPauseButton = document.getElementById("pauseButton");
-    this.playPauseButton.addEventListener("click", () => this.togglePlayPause());
+    if (this.playPauseButton) {
+      this.playPauseButton.addEventListener("click", () => this.togglePlayPause());
+    } else {
+      console.warn("El elemento pauseButton no se ha encontrado en el DOM.");
+    }
 
-    // Elementos de la interfaz para mostrar contadores de tiempo, vidas, objetos y nivel
+    // Referencias a los contadores de la interfaz
     this.timeCounter = document.getElementById("timeCounter");
     this.livesCounter = document.getElementById("livesCounter");
     this.itemsCounter = document.getElementById("itemsCounter");
     this.levelCounter = document.getElementById("levelCounter");
+
+    // Verifica que todos los elementos de la interfaz estén correctamente cargados
+    this.verifyUIElements();
+  }
+
+  // Método para verificar que todos los elementos de la interfaz existan
+  verifyUIElements() {
+    if (!this.timeCounter) console.warn("El elemento timeCounter no se ha encontrado en el DOM.");
+    if (!this.livesCounter) console.warn("El elemento livesCounter no se ha encontrado en el DOM.");
+    if (!this.itemsCounter) console.warn("El elemento itemsCounter no se ha encontrado en el DOM.");
+    if (!this.levelCounter) console.warn("El elemento levelCounter no se ha encontrado en el DOM.");
   }
 
   // Reinicia el contador de vidas en la interfaz
   resetLivesCounter() {
     if (this.livesCounter) {
-      // Reinicia las vidas a un valor predeterminado, por ejemplo, 3
       this.livesCounter.innerHTML = `<img src="assets/images/heart.png" alt="Lives" class="counter-icon"> : 3`;
     }
   }
+
   // Reinicia el contador de objetos en la interfaz
   resetItemCounter() {
     if (this.itemsCounter) {
-        this.itemsCounter.innerHTML = '0'; // Reinicia a 0 o al valor deseado
+      this.itemsCounter.innerHTML = '0';
     }
-}
+  }
 
-
-  // Alterna el estado entre pausa y reanudación
+  // Alterna entre el estado de pausa y reanudación del juego
   togglePlayPause() {
     if (this.gameManager.state === "gameover") {
-      this.gameManager.startGame(); // Reinicia el juego si está en "gameover"
+      this.gameManager.startGame(); // Reinicia el juego si está en estado "gameover"
     } else {
-      this.gameManager.pauseGame(); // Alterna pausa/reanudación
+      this.gameManager.pauseGame(); // Alterna entre pausa y reanudación
     }
   }
 
   // Actualiza el botón de pausa/play según el estado del juego
   updateButtons(state) {
-    if (state === "playing") {
-      this.playPauseButton.classList.remove('paused');
-      this.playPauseButton.innerHTML = '<i class="fas fa-pause"></i>'; // Ícono de pausa
-    } else if (state === "paused") {
-      this.playPauseButton.classList.add('paused');
-      this.playPauseButton.innerHTML = '<i class="fas fa-play"></i>'; // Ícono de play
-    } else if (state === "gameover") {
-      this.playPauseButton.classList.remove('paused');
-      this.playPauseButton.innerText = "Reiniciar";
+    if (!this.playPauseButton) return;
+
+    switch (state) {
+      case "playing":
+        this.playPauseButton.classList.remove('paused');
+        this.playPauseButton.innerHTML = '<i class="fas fa-pause"></i>';
+        break;
+      case "paused":
+        this.playPauseButton.classList.add('paused');
+        this.playPauseButton.innerHTML = '<i class="fas fa-play"></i>';
+        break;
+      case "gameover":
+        this.playPauseButton.classList.remove('paused');
+        this.playPauseButton.innerText = "Reiniciar";
+        break;
+      default:
+        console.warn(`Estado desconocido: ${state}`);
     }
   }
 
-  // Renderiza los contadores en la interfaz, como tiempo, vidas, objetos y nivel
-  render(score, level) {
-    // Formatea el tiempo de juego en minutos y segundos
-    this.timeCounter.innerHTML = `<img src="assets/images/clock.png" alt="Time" class="counter-icon"> : ${Math.floor(score / 60)}:${String(score % 60).padStart(2, '0')}`;
-
-    // Muestra las vidas actuales del jugador
-    this.livesCounter.innerHTML = `<img src="assets/images/heart.png" alt="Lives" class="counter-icon"> : ${this.gameManager.player.health}`;
-
-    // Muestra el conteo de objetos actuales
-    this.itemsCounter.innerHTML = `<img src="assets/images/star.png" alt="Items" class="counter-icon"> : ${this.gameManager.objectManager.objects.length}`;
-
-    // Actualiza el marcador de nivel
-    this.updateLevelCounter(level);
-
-    // Cambia el estilo del contador de vidas si las vidas son críticas (por ejemplo, 2 o menos)
-    if (this.gameManager.player.health <= 2) {
-      this.livesCounter.classList.add('critical');
-    } else {
-      this.livesCounter.classList.remove('critical');
+  // Renderiza y actualiza los contadores de la interfaz
+  render(score) {
+    if (this.timeCounter) {
+      this.timeCounter.innerHTML = `<img src="assets/images/clock.png" alt="Time" class="counter-icon"> : ${Math.floor(score / 60)}:${String(score % 60).padStart(2, '0')}`;
     }
-
-    // Añade un estilo de bonificación si el jugador recolecta múltiples objetos especiales
-    if (this.gameManager.objectManager.objects.length % 5 === 0 && this.gameManager.objectManager.objects.length > 0) {
-      this.itemsCounter.classList.add('bonus');
-    } else {
-      this.itemsCounter.classList.remove('bonus');
+    if (this.livesCounter) {
+      this.livesCounter.innerHTML = `<img src="assets/images/heart.png" alt="Lives" class="counter-icon"> : ${this.gameManager.player.health}`;
     }
+    if (this.itemsCounter) {
+      this.itemsCounter.innerHTML = `<img src="assets/images/star.png" alt="Items" class="counter-icon"> : ${this.gameManager.objectManager.objects.length}`;
+    }
+    this.updateLevelCounter();
   }
 
-  // Actualiza el marcador de nivel en la interfaz
-  updateLevelCounter(level) {
+  // Actualiza el contador de nivel en la interfaz
+  updateLevelCounter() {
     if (this.levelCounter) {
-      this.levelCounter.innerHTML = `<img src="assets/images/trophy.png" alt="Level" class="counter-icon"> : Nivel ${level}`;
+      const currentLevel = this.gameManager.levelManager ? this.gameManager.levelManager.currentLevel || 1 : 1;
+      this.levelCounter.innerHTML = `<img src="assets/images/trophy.png" alt="Level" class="counter-icon"> : Nivel ${currentLevel}`;
     }
   }
 
-  //muestre un mensaje temporal al usuario.
+  // Muestra un mensaje temporal al usuario
   showNotification(message) {
     const notification = document.createElement('div');
     notification.className = 'notification';
     notification.innerText = message;
     document.body.appendChild(notification);
     
-    setTimeout(() => {
-        notification.remove();
-    }, 3000); // Duración de 3 segundos
+    // Elimina la notificación después de 3 segundos
+    setTimeout(() => notification.remove(), 3000);
+  }
 }
 
-}
-
-// Exporta UIManager al contexto global
 window.UIManager = UIManager;
-
-  
-

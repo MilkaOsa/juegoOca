@@ -1,168 +1,82 @@
 // --- ObjectManager.js ---
-// Gestión de los objetos recolectables dentro del juego
 
-// Clase GameObject que representa un objeto recolectable en el juego
-class GameObject {
-  constructor(x, y, type, effect) {
-    this.x = x;
-    this.y = y;
-    this.type = type; // Tipo de objeto (ej. 'star', 'shield', 'health')
-    this.effect = effect; // Efecto que aplica el objeto al jugador
-    this.collected = false; // Estado de recolección
-  }
-
-  // Marca el objeto como recolectado
-  collect() {
-    this.collected = true;
-  }
-
-  // Verifica si el objeto ya fue recolectado
-  isCollected() {
-    return this.collected;
-  }
-
-  // Obtiene la ruta de imagen según el tipo de objeto
-  getImageSrc() {
-    switch (this.type) {
-      case 'star':
-        return 'assets/images/star.png';
-      case 'shield':
-        return 'assets/images/shield.png';
-      case 'health':
-        return 'assets/images/health.png';
-      default:
-        return 'assets/images/default.png';
-    }
-  }
-}
-
-// Clase ObjectManager para gestionar los objetos del juego
+// Clase ObjectManager para gestionar los objetos recolectables en el juego
 class ObjectManager {
   constructor(canvas, gameManager) {
-    this.gameManager = gameManager; // Referencia a GameManager
+    // Referencias al canvas y al gestor del juego
     this.canvas = canvas;
-    this.canvas.width *= 2; // Mejora visual del canvas duplicando tamaño
-    this.canvas.height *= 2;
+    this.gameManager = gameManager;
     this.ctx = this.canvas.getContext("2d");
-    this.ctx.imageSmoothingEnabled = false; // Evita pixelación
-    this.objects = []; // Lista de objetos en el mapa
+    this.objects = []; // Lista de objetos recolectables
+
+    // Mejora visual del canvas
+    this.canvas.width *= 2; // Duplicar el ancho del canvas para una mejor calidad gráfica
+    this.canvas.height *= 2; // Duplicar el alto del canvas
+    this.ctx.imageSmoothingEnabled = false; // Desactiva el suavizado de imágenes para un estilo más nítido
   }
 
-  // Verifica si todos los objetos han sido recolectados
+  // Método para verificar si todos los objetos han sido recolectados
   allCollected() {
+    // Devuelve true si todos los objetos han sido recolectados
     return this.objects.every(object => object.isCollected());
   }
 
-  // Renderiza los objetos en el canvas si no han sido recolectados
+  // Método para renderizar los objetos no recolectados en el canvas
   renderObjects(ctx) {
     this.objects.forEach(object => {
       if (!object.isCollected()) {
-        const img = new Image();
-        img.src = object.getImageSrc();
-        img.onload = () => {
-          ctx.drawImage(img, object.x, object.y, 15, 15);
-        };
+        ctx.fillStyle = '#FFD700'; // Color dorado para los objetos recolectables
+        ctx.fillRect(object.x, object.y, 10, 10); // Dibuja un rectángulo para representar el objeto
       }
     });
   }
 
-  // Añade un objeto en una posición específica
+  // Método para añadir un nuevo objeto recolectable
   addObject(x, y, type) {
-    let effect;
-    switch (type) {
-      case 'star':
-        effect = { scoreBonus: 100 };
-        break;
-      case 'shield':
-        effect = { defenseBonus: 1 };
-        break;
-      case 'health':
-        effect = { healthBonus: 1 };
-        break;
-      default:
-        effect = {};
-    }
-    const object = new GameObject(x, y, type, effect);
-    this.objects.push(object);
+    const effect = this.getEffectByType(type); // Obtiene el efecto correspondiente al tipo de objeto
+    const object = new GameObject(x, y, type, effect); // Crea una nueva instancia de GameObject
+    this.objects.push(object); // Añade el objeto a la lista de objetos recolectables
   }
 
-  // Genera objetos según el nivel y categorías dadas
-  generateObjectsForLevel(level, categories) {
-    this.objects = []; // Vacía los objetos actuales
-    const levelManager = this.gameManager ? this.gameManager.levelManager : null;
-    if (!levelManager) {
-      console.error("LevelManager no está disponible en ObjectManager");
-      return;
-    }
-
-    const obstacleMatrix = levelManager.obstacleMatrix;
-    const insideRectPositions = [];
-
-    // Encuentra celdas dentro de recintos donde colocar objetos
-    for (let row = 1; row < obstacleMatrix.length - 1; row++) {
-      for (let col = 1; col < obstacleMatrix[row].length - 1; col++) {
-        if (
-          obstacleMatrix[row][col] === 0 &&
-          obstacleMatrix[row - 1][col] === 1 &&
-          obstacleMatrix[row + 1][col] === 1 &&
-          obstacleMatrix[row][col - 1] === 1 &&
-          obstacleMatrix[row][col + 1] === 1
-        ) {
-          insideRectPositions.push({ row, col });
-        }
-      }
-    }
-
-    // Define cuántos objetos crear
-    const numObjects = Math.min(Math.floor(Math.random() * 10) + level * 2, insideRectPositions.length);
-
-    // Selecciona posiciones aleatorias dentro de los recintos
-    const positionsToUse = [];
-    for (let i = 0; i < numObjects && insideRectPositions.length > 0; i++) {
-      const randomIndex = Math.floor(Math.random() * insideRectPositions.length);
-      positionsToUse.push(insideRectPositions.splice(randomIndex, 1)[0]);
-    }
-
-    // Crea los objetos en las posiciones seleccionadas
-    positionsToUse.forEach(position => {
-      const x = position.col * levelManager.tileSize + (levelManager.tileSize / 2);
-      const y = position.row * levelManager.tileSize + (levelManager.tileSize / 2);
-      const type = categories[Math.floor(Math.random() * categories.length)];
-      this.addObject(x, y, type);
-    });
+  // Método para generar objetos específicos para el nivel (implementación pendiente)
+  generateObjectsForLevel() {
+    /* Implementación necesaria */
   }
 
-  // Actualiza el estado de los objetos y verifica colisiones con el jugador
-  updateObjects() {
-    this.objects.forEach(object => {
-      if (!object.isCollected() && this.isPlayerColliding(this.gameManager.player, object)) {
-        this.applyEffect(object); // Aplica el efecto al jugador
-        object.collect(); // Marca el objeto como recogido
-      }
-    });
-  }
-
-  // Verifica si el jugador colisiona con un objeto
-  isPlayerColliding(player, object) {
-    return Math.abs(player.x - object.x) < player.tileSize && Math.abs(player.y - object.y) < player.tileSize;
-  }
-
-  // Aplica el efecto del objeto al jugador (puntaje, defensa, vida)
+  // Método para aplicar el efecto del objeto al jugador (implementación pendiente)
   applyEffect(object) {
-    const player = this.gameManager.player;
-    if (object.effect.scoreBonus) {
-      this.gameManager.score += object.effect.scoreBonus;
-    }
-    if (object.effect.defenseBonus) {
-      player.defense = (player.defense || 0) + object.effect.defenseBonus;
-    }
-    if (object.effect.healthBonus) {
-      player.health += object.effect.healthBonus;
-    }
+    /* Implementación necesaria */
   }
 }
 
-// Exporta ObjectManager al contexto global
+// Clase GameObject para definir las propiedades y métodos de los objetos recolectables
+class GameObject {
+  constructor(x, y, type, effect) {
+    this.x = x; // Posición X del objeto
+    this.y = y; // Posición Y del objeto
+    this.type = type; // Tipo de objeto (p. ej., "poder", "puntuación")
+    this.effect = effect; // Efecto que el objeto tiene en el jugador
+    this.collected = false; // Estado de recolección del objeto (no recolectado por defecto)
+  }
+
+  // Método para marcar el objeto como recolectado
+  collect() {
+    this.collected = true; // Marca el objeto como recolectado
+  }
+
+  // Método para verificar si el objeto ha sido recolectado
+  isCollected() {
+    return this.collected; // Devuelve true si el objeto ha sido recolectado
+  }
+
+  // Método para obtener la imagen del objeto según su tipo (implementación pendiente)
+  getImageSrc() {
+    /* Implementación necesaria */
+  }
+}
+
+// Exporta ObjectManager al contexto global para ser utilizado en el juego
 window.ObjectManager = ObjectManager;
+
 
 
