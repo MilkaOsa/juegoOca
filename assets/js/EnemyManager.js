@@ -49,19 +49,19 @@ class EnemyManager {
     return Math.abs(enemy.x - player.x) < 10 && Math.abs(enemy.y - player.y) < 10;
   }
 
-  // Reinicia la lista de enemigos
-  resetEnemies() {
-    this.enemies = [];
-  }
+  // // Reinicia la lista de enemigos
+  // resetEnemies() {
+  //   this.enemies = [];
+  // }
 
-  // Aumenta la dificultad del juego añadiendo más enemigos
-  increaseDifficulty() {
-    for (let i = 0; i < 5; i++) {
-      const x = Math.floor(Math.random() * this.gameManager.canvas.width);
-      const y = Math.floor(Math.random() * this.gameManager.canvas.height);
-      this.addEnemy(x, y, 'random');
-    }
-  }
+  // // Aumenta la dificultad del juego añadiendo más enemigos
+  // increaseDifficulty() {
+  //   for (let i = 0; i < 5; i++) {
+  //     const x = Math.floor(Math.random() * this.gameManager.canvas.width);
+  //     const y = Math.floor(Math.random() * this.gameManager.canvas.height);
+  //     this.addEnemy(x, y, 'random');
+  //   }
+  // }
 }
 
 // Clase Enemy que define el comportamiento de cada enemigo individual
@@ -72,6 +72,8 @@ class Enemy {
     this.type = type; // Tipo de enemigo (chaser, patroller, stationary, random)
     this.health = 50; // Salud inicial del enemigo
     this.speed = 2; // Velocidad de movimiento del enemigo
+    this.baseSpeed = Math.random() * 2 + 1; // Velocidad entre 1 y 3
+    this.currentSpeed = this.baseSpeed;
     this.gameManager = gameManager; // Referencia a GameManager
     this.patrolDirection = 1; // Dirección de patrullaje para los enemigos tipo "patroller"
   }
@@ -94,23 +96,26 @@ class Enemy {
     }
   }
 
+  // Método para aumentar la velocidad del enemigo
+  increaseSpeed(amount) {
+    this.currentSpeed += amount;
+  }
+
   // Método para que los enemigos de tipo "chaser" se muevan hacia el jugador
   moveTowardPlayer(player) {
-    const direction = {
-      x: player.x > this.x ? 1 : player.x < this.x ? -1 : 0,
-      y: player.y > this.y ? 1 : player.y < this.y ? -1 : 0
-    };
-    const newX = this.x + direction.x * this.speed;
-    const newY = this.y + direction.y * this.speed;
-
-    // Asegura que el enemigo no se salga del área del canvas
-    if (newX >= 0 && newX <= this.gameManager.canvas.width - 10) {
-      this.x = newX;
-    }
-    if (newY >= 0 && newY <= this.gameManager.canvas.height - 10) {
-      this.y = newY;
+    const distance = Math.hypot(player.x - this.x, player.y - this.y);
+    if (distance < 200) { // Perseguir solo si el jugador está dentro de un rango de 200 unidades
+      const direction = {
+        x: player.x > this.x ? 1 : player.x < this.x ? -1 : 0,
+        y: player.y > this.y ? 1 : player.y < this.y ? -1 : 0
+      };
+      this.x += direction.x * this.speed;
+      this.y += direction.y * this.speed;
+    } else {
+      this.moveRandomly();
     }
   }
+  
 
   // Método para el patrullaje de enemigos tipo "patroller"
   patrol() {

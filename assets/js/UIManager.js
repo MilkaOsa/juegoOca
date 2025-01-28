@@ -34,7 +34,7 @@ class UIManager {
   // Reinicia el contador de vidas en la interfaz
   resetLivesCounter() {
     if (this.livesCounter) {
-      this.livesCounter.innerHTML = `<img src="assets/images/heart.png" alt="Lives" class="counter-icon"> : 3`;
+      this.livesCounter.innerHTML = `<img src="assets/images/heart.png" alt="Lives" class="counter-icon"> : 100`;
     }
   }
 
@@ -52,6 +52,8 @@ class UIManager {
     } else {
       this.gameManager.pauseGame(); // Alterna entre pausa y reanudación
     }
+    // Llamar a updateButtons para asegurar que el botón refleje el estado actual del juego
+    this.updateButtons(this.gameManager.state);
   }
 
   // Actualiza el botón de pausa/play según el estado del juego
@@ -90,13 +92,13 @@ class UIManager {
     this.updateLevelCounter();
   }
 
-  // Actualiza el contador de nivel en la interfaz
+  // Contador de nivele, ahora solo para 1 nivel
   updateLevelCounter() {
     if (this.levelCounter) {
-      const currentLevel = this.gameManager.levelManager ? this.gameManager.levelManager.currentLevel || 1 : 1;
-      this.levelCounter.innerHTML = `<img src="assets/images/trophy.png" alt="Level" class="counter-icon"> : Nivel ${currentLevel}`;
+      this.levelCounter.innerHTML = `<img src="assets/images/trophy.png" alt="Level" class="counter-icon"> : Nivel 1`;
     }
   }
+  
 
   // Muestra un mensaje temporal al usuario
   showNotification(message) {

@@ -6,14 +6,22 @@ class GameManager {
     // Inicialización del canvas y su contexto 2D
     this.canvas = canvas;
     this.ctx = this.canvas.getContext("2d");
-    this.canvas.width = config.canvasWidth || canvas.width; // Ancho del canvas
-    this.canvas.height = config.canvasHeight || canvas.height; // Alto del canvas
+    this.canvas.width = config.canvasWidth ? config.canvasWidth * 2 : canvas.width * 2; // Mejora visual del canvas
+    this.canvas.height = config.canvasHeight ? config.canvasHeight * 2 : canvas.height * 2; // Mejora visual del canvas
+    this.enemies = []; // Lista de enemigos en el juego
+    this.difficultyLevel = 1; // Nivel de dificultad inicial
+    this.backgroundReady = false; // Variable para indicar si la imagen de fondo está lista
+
+    this.ctx.imageSmoothingEnabled = false; // Desactiva el suavizado de imágenes para un estilo más nítido
 
     // Inicialización de gestores del juego
     this.levelManager = new LevelManager(canvas, this); // Gestor de niveles
     this.enemyManager = new EnemyManager(this); // Gestor de enemigos
     this.objectManager = new ObjectManager(canvas, this); // Gestor de objetos
-    this.player = new Player(100, 100, 5); // Jugador con posición y velocidad inicial
+    this.player = new Player(100, 100, 5, this); // Jugador con posición y referencia al gameManager
+
+    // Inicialización del UIManager
+    this.uiManager = new UIManager(this);
 
     // Estado del juego y variables adicionales
     this.state = "start"; // Estado inicial del juego
@@ -24,72 +32,72 @@ class GameManager {
     window.addEventListener('keydown', (e) => this.keysPressed[e.key] = true);
     window.addEventListener('keyup', (e) => this.keysPressed[e.key] = false);
 
+    window.addEventListener('keydown', (e) => {
+      this.keysPressed[e.key] = true;
+      if (e.key === " ") {
+        this.pauseGame(); // Evento para pausar/reanudar el juego con la barra espaciadora
+      }
+    });
+    window.addEventListener('keyup', (e) => this.keysPressed[e.key] = false);
+
     // Carga del fondo del nivel
     this.loadLevelBackground();
+
+    // Carga de la imagen para los obstáculos
+    this.obstacleImage = new Image();
+    this.obstacleImage.src = "assets/images/obstacle1.png";
+    this.obstacleImageLoaded = false;
+
+    // Asegurarse de que la imagen se haya cargado antes de usarla
+    this.obstacleImage.onload = () => {
+      this.obstacleImageLoaded = true;
+      console.log("Imagen de los obstáculos cargada correctamente.");
+    }; 
+
+    // Carga y configuración de la música del juego
+    this.gameMusic = new Audio("assets/mp3/gameplay-music.mp3");
+    this.gameMusic.loop = true; // La música se reproducirá en bucle
+    this.gameMusic.volume = 0.02; // Ajustar el volumen de la música (opcional)
   }
 
-  // Carga la imagen de fondo del nivel y comienza el juego cuando esté lista
-  loadLevelBackground() {
-    this.levelBackground = new Image();
-    this.levelBackground.src = 'assets/images/Level1.png'; // Ruta de la imagen del nivel
-    this.levelBackground.onload = () => this.startGame(); // Inicia el juego al cargar la imagen
+  // Método para limpiar y reiniciar el juego
+  resetGame() {
+    console.log("Reiniciando el juego...");
+    this.levelManager.clearObstacles(); // Limpia los obstáculos
+    this.player.x = 100; // Reestablece la posición inicial del jugador (ajústala según sea necesario)
+    this.player.y = 100;
+    this.player.health = 100; // Restablece la salud del jugador
+    this.player.score = 0; // Restablece la puntuación
+    this.player.speed = this.player.defaultSpeed; // Restablece la velocidad
+  
+    // Aquí podrías reiniciar cualquier otro componente del juego, como objetos recolectables, enemigos, etc.
   }
 
-  // Método para iniciar el juego
-  startGame() {
-    this.state = "playing"; // Cambia el estado a "jugando"
-    this.levelManager.setLevel(); // Configura el nivel inicial
-    this.mainLoop(); // Comienza el bucle principal del juego
-  }
+  // (Los métodos restantes como startGame, mainLoop, drawObstacles, etc., van aquí)
 
-  // Bucle principal del juego que se ejecuta de forma continua
-  mainLoop() {
-    if (this.state !== "playing") return; // Si el juego no está en estado "jugando", se detiene el bucle
-
-    // Limpia el canvas y dibuja el fondo del nivel
-    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    this.ctx.drawImage(this.levelBackground, 0, 0, this.canvas.width, this.canvas.height);
-
-    // Dibuja los obstáculos en el canvas
-    this.drawObstacles();
-
-    // Captura el estado actual de las teclas presionadas para el movimiento del jugador
-    const input = {
-      up: this.keysPressed['ArrowUp'] || false,
-      down: this.keysPressed['ArrowDown'] || false,
-      left: this.keysPressed['ArrowLeft'] || false,
-      right: this.keysPressed['ArrowRight'] || false
-    };
-
-    // Actualiza el estado del jugador, enemigos y otros objetos
-    this.player.update(input); // Actualiza el jugador con el input de teclado
-    this.enemyManager.updateEnemies(); // Actualiza los enemigos
-    this.objectManager.renderObjects(this.ctx); // Renderiza los objetos del juego
-
-
-    // Solicita la próxima animación para continuar el bucle
-    requestAnimationFrame(() => this.mainLoop());
-  }
-
-  // Dibuja los obstáculos según la matriz del gestor de niveles
-  drawObstacles() {
-    const matrix = this.levelManager.obstacleMatrix; // Matriz que define la ubicación de los obstáculos
-    const tileSize = this.levelManager.tileSize; // Tamaño de cada bloque de obstáculo
-    this.ctx.fillStyle = "#8B0000"; // Color de los obstáculos
-
-    // Recorre la matriz y dibuja un rectángulo donde hay un obstáculo (valor 1)
-    for (let r = 0; r < matrix.length; r++) {
-      for (let c = 0; c < matrix[r].length; c++) {
-        if (matrix[r][c] === 1) {
-          this.ctx.fillRect(c * tileSize, r * tileSize, tileSize, tileSize); // Dibuja el obstáculo
-        }
-      }
-    }
-  }
-}
+} // Fin de la clase GameManager
 
 // Exporta GameManager al contexto global para que pueda ser usado en el juego
 window.GameManager = GameManager;
+
+// Inicialización del juego al cargar el DOM
+document.addEventListener("DOMContentLoaded", () => {
+  const canvas = document.getElementById("gameCanvas");
+  const gameManager = new GameManager(canvas);
+
+  document.getElementById("startButton").addEventListener("click", () => {
+    if (gameManager.backgroundReady) {
+      document.getElementById("startScreen").style.display = "none";
+      document.getElementById("controls").style.display = "block";
+      canvas.style.display = "block";
+      gameManager.startGame(); // Inicia el juego solo si la imagen de fondo está lista
+    } else {
+      console.warn("La imagen de fondo no se ha cargado aún. Espera un momento.");
+    }
+  });
+});
+
+
 
 
 
