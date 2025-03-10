@@ -18,12 +18,14 @@
 </head>
 <body>
   <!-- Pantalla de inicio -->
+     <!-- Canvas principal para el juego -->
+  <canvas id="gameCanvas"></canvas>
+
+
   <div id="startScreen" class="fullscreen">
     <button id="startButton" class="btn">Iniciar Juego</button>
   </div>
 
-  <!-- Canvas principal para el juego -->
-  <canvas id="gameCanvas"></canvas>
 
   <!-- Controles del juego -->
   <div id="controls">
@@ -45,21 +47,31 @@
   </div>
 
   <!-- Carga los archivos JavaScript en el orden adecuado -->
-  <script src="assets/js/GameManager.js" defer></script>
-  <script src="assets/js/ObjectManager.js" defer></script>
-  <script src="assets/js/Player.js" defer></script>
-  <script src="assets/js/EnemyManager.js" defer></script>
-  <script src="assets/js/LevelManager.js" defer></script>
-  <script src="assets/js/UIManager.js" defer></script>
+  <script src="assets/js/GameManager.js"></script>
+  <script src="assets/js/Object.js"></script>
+  <script src="assets/js/ObjectManager.js"></script>
+  <script src="assets/js/Player.js"></script>
+  <script src="assets/js/Enemy.js"></script>
+  <script src="assets/js/EnemyManager.js"></script>
+  <script src="assets/js/Level.js"></script>
+  <script src="assets/js/LevelManager.js"></script>
+  <script src="assets/js/UIManager.js"></script>
  
   <!-- Inicialización del GameManager -->
   <script defer>
     document.addEventListener("DOMContentLoaded", () => {
         const canvas = document.getElementById("gameCanvas");
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
         const gameManager = new GameManager(canvas);
 
         // Inicia el juego cuando se hace clic en el botón "Iniciar Juego"
-        document.getElementById("startButton").addEventListener("click", () => gameManager.startGame());
+          document.getElementById("startButton").addEventListener("click", () => {
+          document.getElementById("startScreen").style.display = "none";
+          document.getElementById("controls").classList.add("active");
+          document.getElementById("gameCanvas").classList.add("active");
+          gameManager.startGame();
+        });
     });
   </script>  
 </body>

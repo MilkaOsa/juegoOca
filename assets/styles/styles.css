@@ -68,7 +68,7 @@ body, html {
 
 /* --- Contadores de Tiempo, Vidas, Objetos y Nivel --- */
 #timeCounter, #livesCounter, #itemsCounter {
-  font-size: 0px;
+  font-size: 10px;
   font-weight: bold;
   color: #ffffff;
   padding: 5px 10px;
