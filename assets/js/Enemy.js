@@ -100,3 +100,5 @@ class Enemy {
   
   // Exporta la clase Enemy para que pueda ser utilizada por el EnemyManager o directamente por el GameManager
   window.Enemy = Enemy;
+
+  //holaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
